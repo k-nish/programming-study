@@ -1,3 +1,914 @@
+#第1部web概論
+HTTP:hypertext transfer protocol
+
+URI:uniform resource identifier
+
+API:application programmig interface
+
+HTML:hypertext markup language
+
+REST:representational state transfer
+
+RSS:RDF site summary,Rich site summary, Really simple syndication
+
+RPC:remote procedure call
+
+アドレス可能性:URIが持つ、リソース(=WEB上の情報)をアドレス可能な状態にすること。
+
+##第3章RESTの特性
+1.クライアント/サーバー:webが採用しているアーキテクチャスタイル。すべてのコンピューターにおいてクライアントとサーバーを分離して処理ができる。
+
+2.ステートレスサーバー:クライアントの状態をサーバーが管理しないサーバー。
+
+3.キャッシュ(cache):リソースの鮮度に基づいて一度取得したリソースをクライアント側で使い回す方式。
+
+4.統一インターフェース:リソースに対する処理を統一した限定的なインターフェースで行うアーキテクチャスタイル。
+ex.HTTP1.1:GETなど8個しかメソッドを使えない。しかし、クライアントとサーバの独立性を高める。
+
+5.階層化システム:クライアントとサーバーの間にロードバランサやプロキシなどを置いてシステムを階層化したアーキテクチャスタイル
+
+→ロードバランサ:webサーバーやキャッシュサーバーなどへの外部からのアクセス要求を管理し、同等のサーバーへ転送することでサーバーへのアクセス負荷を管理する装置。
+
+→プロキシ:内部ネットワークからのアクセス要求に対して高速または安全なサーバー接続を行うための代理サーバー
+
+6.コードオンデマンド:プログラムコードをサーバーからダウンロードし、クライアント側で実行するアーキテクチャスタイル。通信の意味、リソースが見えにくくなりプロトコルの可視性が落ちる。
+
+####ソフトウェアインターフェース:ソフトウェア同士の通信を行う際のメッセージの渡し方などを決めたルールのこと。基本的にソフトウェアインターフェースといえば、APIと呼ばれる関数の集合体を指す。
+![スクリーンショット 2016-02-17 23.15.28.png](https://qiita-image-store.s3.amazonaws.com/0/99622/6be99ac5-f319-0027-4fba-19695886b95c.png "スクリーンショット 2016-02-17 23.15.28.png")
+
+####API(関数)の呼び出し回数が多かったり並列して呼び出し処理を実行した場合CPUやメモリなどの計算リソースの競合を引き起こし、サーバーの性能を劣化させる恐れがある。
+⇨ネットワーク越しの関数呼び出しはシステムの処理速度が遅くなるため、システム全体の性能劣化につながる。
+
+####インターフェースの粒度について
+ソフトウェアインターフェースには「手続き型」と「ドキュメント型」がある。
+→手続き型:例えばTEL(やり取りが多い→粒度が細かい)<1回の情報量小>
+→ドキュメント型:例えばFAX(やり取りが少ない→粒度が荒い)<1回の情報量大>
+
+
+#第2部URI
+##第4章URIの仕様
+URI:uniform resource identifier
+URL:uniform resource location
+URN:uniform resource name
+URIはURLとURNの総称
+
+`http://ut-sunfriend.com/bbs/`
+において
+URIスキーム:http
+ホスト名:ut-sunfriend.com
+パス:/bbs/
+
+
+`http://yohei:pass@blog.example.jp:8000/search?q=test&debug=true#n10`
+においては
+URIスキーム:http
+ユーザ情報:yohei:pass
+ホスト名:blog.example.jp
+ポート番号:8000
+パス:/search
+クエリパラメータ:q=test&debug=true
+URIフラグメント:#n10
+
+→ポート番号:ホストにアクセスするときにプロトコルが用いるTCPの番号
+→TCP:
+→URIフラグメント:URIが指し示すリソースのさらに細かい部分を特定する
+
+##URIにはASCⅡを使う(american standard code for information)
+アルファベット:A-Za-z
+数字:0-9
+記号:-.~:@!$&'()
+
+これ以外の文字(日本語とか)を使う場合は%エンコーディングをしなくてはならない。
+
+##URIの設計方針
+1.URIにプログラミング言語依存の拡張子を利用しない
+2.URIに実装依存のパス名を利用しない
+3.URIにプログラミング言語のメソッドを利用しない
+4.URIにセッションIDを使用しない
+5.URIはそのリソースを表現する名詞である
+
+####コンテントネゴシエーション:HTTPの機能でユーザーが使っているOSの言語に対応した言語の表現を返す機能。
+
+##URIが重要である理由
+URIはリソースの名称
+URIは寿命が短い
+URIはプラウザがアドレス欄に表示する
+
+#第3部HTTP
+##HTTPの基本
+Webの基盤となるプロトコルであるHTTPはTCP/IPを基盤としておりTCP(transmisson control protocol)、IP(internet protocol)はインターネットの基盤を構成するプロトコル
+
+##TCP/IP
+1.階層型プロトコル
+![Kobito.qVislA.png](https://qiita-image-store.s3.amazonaws.com/0/99622/db993317-3985-41a5-95fd-ef27a5f69749.png "Kobito.qVislA.png")
+
+2.ネットワークインターフェース層
+物理的なケーブルやネットワークアダプタに相当する部分
+
+3.インターネット層
+IPがネットワークでデータをやり取りする層
+IPでは通信単位をパケットとしてIPアドレスに送信するがデータを送り出すことしか保障しない。
+
+4.トランスポート層
+IPが保障しなかったデータ転送をTCPが確認する層。接続先の相手に対してコネクションを張りそのコネクションを使って転送したデータがどのアプリケーションを使って渡るかを決定するのがポート番号である。
+
+5.アプリケーション層
+HTTPやインターネットアプリケーション、DNSを実行する層。接続、送信、受信、切断といった機能を備えたネットワークでのデータ授受を抽象化したAPIであるソケットを用いてデータ処理を行う。
+
+##HTTPメッセージの構成(リクエストメッセージ、レスポンスメッセージともに)
+![スクリーンショット 2016-02-17 13.43.30.png](https://qiita-image-store.s3.amazonaws.com/0/99622/391b8be8-ad11-a057-b7b6-dba7b22e7782.png "スクリーンショット 2016-02-17 13.43.30.png")
+
+メタデータとはデータを記述するデータ、データのためのデータである。
+
+###FTP
+FTPはもっともステートフルなプロトコルの例で、ログインしている間クライアントのアプリケーション状態をサーバーが常に把握している。
+
+#第7章HTTPメソッド
+![スクリーンショット 2016-02-18 9.59.16.png](https://qiita-image-store.s3.amazonaws.com/0/99622/5d4d6b69-ff84-49ff-73ba-a57e1c669b02.png "スクリーンショット 2016-02-18 9.59.16.png")
+
+####CSV:Conma Separated Value
+
+##POSTとPUTの違い
+POSTとPUTはともにリソースを作成することができるが
+POST→クライアントはリソースのURIを指定できない。
+PUT→クライアントはリソースのURIを指定できる。
+
+従ってPUTではクライアントがそのURIがすでに存在しないか確認する必要があり、クライアント側のエンジニアがサーバーの内部実装を熟知している必要がある。従って、リソースを作成するためにはPOSTを使う方がいい。
+
+#メソッドの代用
+HTMLがメソッドをGETとPOSTに限定されているためにHTTPでも主にGETとPOSTの2つしか使われない。
+現在ではAjaxで用いられるXMLHttpRequestというモジュールを使えばその他のメソッドも使えるようになる。
+
+##_methodパラメータを使う
+_methodパラメータに使いたいメソッドをフォームから_methodパラメータに本来送りたかったメソッド名をhiddenでPOST送信することで送り直すことができる。
+
+##X-HTTP-Method-Override
+POSTの内容がXMLなど、application/x-www-form-urlencoded以外の場合は_methodパラメータは使用できない。
+
+X-HTTP-Method-Overrideヘッダを用いるとリクエストをヘッダに追加する形で送信することができる。
+GoogleのGDataが採用している手法である。
+
+##条件つきリクエスト
+HTTPのメソッドとヘッダ(更新日時など)を組み合わせることでリソースの更新日時を条件にメソッドを実行するかどうかをサーバが選択することができるリクエストを「条件つきリクエスト」と呼ぶ。
+
+・If-Modified-Sinceヘッダ&GET:リソースがこの日時以降更新されたらGETがリソースを取得するという意味として使える。
+
+・If-Modified-Sinceヘッダ&PUT:リソースがこの日時以降更新されていなければリソースを取得するという意味として使える。
+
+##べき等性と安全性
+べき等性:その処理を2回以上行っても結果が変化しないこと。
+安全性:操作対象のリソースの状態を変化させないこと。
+
+![Kobito.sHadYG.png](https://qiita-image-store.s3.amazonaws.com/0/99622/f5c9a081-153e-bb7c-1ae9-558bcf1e1ab0.png "Kobito.sHadYG.png")
+
+###べき等性と安全性を誤解した例
+・POSTで他のメソッドを代用した場合
+ex.XML-RPC,SOAP
+  XML-RPC:RPCプロトコルの一種でエンコード方式にXML,転送機構にHTTPを採用し、少数のデータ型とコマンドだけを定義したプロトコル
+  SOAP:XML-RPCから派生したXMLベースのプロトコル。開発当初はオブジェクトにアクセスするだけのプロトコルだったため、Simple Object Access Protcolの略だったが、役割が増えていき何かの略ではないとされている。
+  
+・PUTで差分を送る場合
+PUTで値ではなく、差分を送ってしまうと結果が変化しべき等とは言えなくなる。
+
+・DELETEでの誤用
+ex.子リソースの最新版をdeleteするというリクエストを送るとべき等性が崩れてしまうの誤用である。
+
+#第8章ステータスコード
+##ステータスコードと内容一覧
+![Kobito.NO5wte.png](https://qiita-image-store.s3.amazonaws.com/0/99622/0d142664-5c38-e396-a138-4652129b1d0e.png "Kobito.NO5wte.png")
+
+ステータスコードを先頭の文字で分類するのはクライアントとサーバーを疎結合にするためである。一般的にシステムが疎結合になるとコンポーネント間の独立性が高まりコンポーネントの置換や拡張が容易になる。
+
+##ステータスコードとエラー処理
+人間用のwebサービスであればエラーメッセージがHTMLでも問題ないが、プログラム用のWebAPIの様な場合ではクライアントがHTMLを解釈できるとは限らないのでWebAPIの場合はクライアントが解釈できる形でエラーメッセージを返すといい
+
+・クライアントがAcceptヘッダで送信しているときはそれを利用してエラー情報の表現を変更できる。
+
+##ステータスコードの実装
+###Apacheの場合
+静的ファイルを送信するときに送信するファイルの条件によって自動でステータスコードが決定する。
+
+###サーブレットの場合
+サーブレットでwebサービスやwebAPIを実装するときはHttpServletResponseクラスのsetStatus()メソッドやsetError()メソッドを使ってステータスコードを数値で設定する。
+
+###Ruby on Railsの場合
+コントローラーでrenderメソッドを使って結果をレンダリングする際に引数としてステータスコードの数値を渡す。
+
+#第9章HTTPヘッダ
+##日時に関するヘッダ
+![Kobito.oBduRW.png](https://qiita-image-store.s3.amazonaws.com/0/99622/4ef38fa4-310c-d905-ac24-e0f0dbfbd7b3.png "Kobito.oBduRW.png")
+
+##MIMEメディアタイプ
+MIMEメディアタイプ⇦Multipurpose Internet Mail Extensionsの略でメッセージでやり取りするリソースの表現の種類を指定する。
+
+###Content-Type:メディアタイプの指定
+`Content-Type:application/xhtml+xml; charset=utf-8`のうち、applicationが「タイプ」、xhtml+xmlが「サブタイプ」と呼ばれる。
+
+・タイプ
+以下の9つ以外勝手に増やすことはできない。
+![Kobito.nQNyxF.png](https://qiita-image-store.s3.amazonaws.com/0/99622/a54a9a16-86e9-dd42-6859-2586d3785678.png "Kobito.nQNyxF.png")
+
+・サブタイプ
+比較的自由に増やすことができ、「x−」を接頭辞につけることで独自のサブタイプを作ることができる。
+↓主なサブタイプ
+![Kobito.76YFTf.png](https://qiita-image-store.s3.amazonaws.com/0/99622/70c10710-cb7d-59b4-37e2-9b415faa648b.png "Kobito.76YFTf.png")
+
+###charsetパラメータ
+HTTPのデフォルトのエンコーディングがISO 8859-1で、textタイプの場合はContent-Typeヘッダのcharsetパラメータが優先されるため、textタイプの場合はヘッダでエンコーディングを指定しなければならない。
+ex.
+
+```emacs:XML文書の文字エンコーディング指定を無視する場合
+HTTP/1.1 200 OK
+Content-Type: text/xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<test>日本語文字列</test>
+```
+
+この場合のようにxml内で宣言していてもヘッダでエンコーディングを指定していないのでISO 8859-1になってしまう。
+
+##言語タグ
+Content-Language:リソース表現の自然言語を指定するヘッダ
+
+##コンテントネゴシエーション
+メディアタイプ、文字エンコーティング、言語タグをサーバとクライアントが交渉して決める手法をコンテントネゴシエーションという。
+
+###Acceptヘッダ:処理できるメディアタイプを伝える
+クライアントが自分の処理できるメディアタイプをサーバに伝えるときにAcceptヘッダを利用できる
+利用できるクライアントとその優先度をqvalue(小数点以下3桁の0~1までの数)を用いてクライアントがAcceptヘッダを通じて送信するが、サーバがそのメディアタイプに対応していない場合「406 Not Acceptable」が返る。
+
+###Accept-Charset:処理できる文字エンコーディングを伝える
+クライアントが自分の処理できる文字エンコーディングをqvalueとともにサーバに伝えるときに使う。
+
+###Accept-Language
+クライアントが自分の処理できる言語タグをqvalueとともにサーバに伝えるときに使う。
+
+##Content-Lengthとチャンク転送
+Contet-Length:ボディの長さを指定する
+静的なファイルなどあらかじめサイズのわかっているリソースを転送するとき、メッセージがボディを持っている場合にContent-Lengthを利用してそのボディのサイズを送る
+
+##チャンク転送:ボディを分割して転送する
+動的に画像を生成するWebサービスのようにファイルサイズが決まるのが遅いファイルを転送するときはTransfer-Encodingヘッダを使う。
+
+Transfer-Encodinfヘッダにchukedを指定すると最終的なサイズがわからないボディも少しずつ送ることができる。
+　chuked:データの一部の塊
+
+HTTP1.1ではすべてのHTTP1.1実装はチャンクエンコーディングを受信できなければいけないとしている。
+
+##認証
+このリソースにアクセス制御がかかっている場合、ステータスコード401 UnauthorizedとWWW-Authenticateヘッダを利用してクライアントにリソースへのアクセスに必要な認証情報を通知する
+
+##Basic認証
+ユーザ名とパスワードによる認証方式で、ユーザ名とパスワードを「:」で連結したものをBase64エンコーディングAuthorizationヘッダに入れてリクエストごとに送信する。
+従ってユーザ名とパスワードがネットワーク上で流れてもよいレベルのセキュリテイ強度でしかない。セキュリティ強度をあげるためにはSSLとTSL使い、HTTPS通信して暗号化する必要がある。
+
+##Digest通信
+Digest:メッセージダイジェストの略でメッセージに対してハッシュ関数を適用した結果のハッシュ値。
+
+ハッシュ関数とはデータからそのデータを代表する数値を求める関数で、ハッシュ関数によって得られた数値のことをハッシュ値という。
+
+Digest通信を用いた例
+
+```emacs:リクエスト
+DELETE /test/ HTTP/1.1
+Host:example.jp
+```
+
+```emacs:レスポンス
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Digest realm="Example.jp", nonce="1ac41fguapofuoiyt89t786953bew90u", qop="auth", opaque="897r5pq7nc99847tg9o3u4"
+```
+
+チャレンジ(Challenge):WWW-Authenticateヘッダの値
+
+realm:サーバ上でこのリソースが属しているURI空間
+
+nonce:(←number used onceの略)タイムスタンプやサーバーだけが知り得るパスワードから生成されるリクエストごとに変化する文字列
+
+qop:(←quality of protectionの略)authかauth-intを指定する
+→auth:メソッドとURIからダイジェストを作成するの
+→auth-int:メソッドとURIに加えてメッセージボディも使用する
+
+opaque:クライアントには不透明な文字列で同じURI空間へのリクエストでは共通してクライアントからサーバーに送る。
+
+###ダイジェストの生成と通信
+1.ユーザ名、realm,パスワードを「:」で連結しMD5ハッシュ値を計算
+2.メソッドとURIのパスを「:」で連結しMD5ハッシュ値を計算
+3.1.の値、nonce、クライアントがnoceを送った回数、クライアントが生成したnoce、qop、2.の値を連結してMD5ハッシュ値を生成
+
+###Digestの長所と短所
+パスワードそのものではなくパスワードのハッシュ値を保管するのでセキュリティリスクは下げられるが、メッセージは平文なのでメッセージを暗号化するためにはHTTPSが必要である。
+Basic認証の場合は同じURI空間であればクライアントは2回目以降は自動的にユーザー名とパスワードを送れるが、Digest認証の場合はサーバからのnonceがなければクライアント側でダイジェストが計算できないのでリクエストのたびに401 Unauthorizedレスポンスを得なくてはいけなくなる。
+また、ApacheのようなWebサーバーではDigest認証がオプション扱いのためホスティングサービスではサポートしていない可能性がある。
+
+###MD5
+MD5:与えられた入力に対して128ビットのハッシュ値を返すハッシュアルゴリズム
+
+###URI空間
+URI中のあるパス以下のことを指す。クライアントは同じURI空間に属するリソースには同じ認証情報を送信できると仮定してよいことになっている。
+
+以下のURIはすべて`http://example.jp/foo`というURI空間にあるとしてよい。
+
+```
+http://example.jp/foo
+http://example.jp/foot/bar
+http://example.jp/foo/bar/baz
+http://example.jp/foo?q=a
+```
+
+###HTTPS
+HTTPとSSL/TLSを組み合わせた通信の総称で通信路を暗号化し、クライアントとサーバー間の通信データを保護する。SSL/TLSは以下の3つの機能を持つ
+
+・暗号化:共通鍵暗号に基づく暗号化機能
+・認証:公開鍵証明書に基づく認証機能
+・改ざん検知:ハッシュ用共通鍵に基づく改ざん検知機能
+
+##WSSE認証
+HTTP1.1の標準外の認証方式で、AtomPubなどのWebAPIの認証に使われており、WS-SecurityのUsernameTokenという認証方式をベースにしている。
+
+具体的なやりとり例は下の通りで
+
+```emacs:リクエスト
+DELETE /test/ HTTP/1.1
+Host:example.jp
+```
+
+```emacs:レスポンス
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: WSSE realm="Example.jp",profile="UsernameToken"
+```
+
+profileは"UsernameToken"しか用意されておらずクライアントはパスワードとクライアントが用意したnonce、日時を連結した文字列に対してSHA-1ハッシュ値を求め、結果をBase64エンコードしたもの。この値を「パスワードハッシュ値」という。
+
+クライアントは、Authorizationヘッダに「WSSE」と「proflile="UsernameToken"」を指定し、X-WSSE拡張ヘッダにパスワードダイジェストやnonce,日時情報を入れてリクエストを送信する
+
+##OpenIDとOAuth
+Webサービス同士でユーザが持っているデータをやりとりするための認証方式
+
+OpenID:シンプルなシングルサインオンを実現する仕様。自分のサービスのアカウントを他のWebサービスにも提供する側のことをIdentity Provider(IdP)と呼び、IdPのアカウントを利用して独自のWebサービスを提供する側のことをService Provider(SP)と呼ぶ。ユーザはIdPを持っている自分のアカウントでSPにログインできるようになる。
+
+OAuth:Webサービス間での認可の移譲
+他のサービス(Service Provider)のユーザアカウントをあるサービス(customer)が使いたい時ユーザがService ProviderからConsumerへのデータ移行に同意するとこのWebサービス間でデータのやりとりが行われる。
+
+##キャッシュ
+サーバから取得したリソースをHDDなどのローカルストレージに蓄積し、再利用する手法または、蓄積されたデータを指す。
+
+##Pregma:キャッシュを抑制する
+Pregmaヘッダに指定できる値はno-cacheのみで、この値はリソースをキャッシュしてはいけないことを示す。
+
+##Expires:キャッシュの有効期限を示す
+キャッシュの有効期限を絶対時間で入れ、クライアントがサーバに接続する必要があるか判断する
+
+##Cache-Control:詳細なキャッシュ方法を指定
+キャッシュの期限を相対時間で入力するなど様々な識別子と値をもってキャッシュを制御することができる。
+
+##キャッシュ用ヘッダの使い方
+・キャッシュをさせない場合は、pregmaとcache-controlのno-cacheを同時に指定する
+・キャッシュの有効期限が決まってる時はExpiresを指定する
+・キャッシュの有効期限を相対的に決めたいときはcache-controlで相対時間を指定する
+
+##条件付きGET
+条件付きGETとはExpires、Cache-Controlヘッダでローカルキャッシュが利用できないとわかっても、キャッシュを再利用できるようにする。リソースがLast-ModifiedヘッダまたはETagヘッダを持っているときに利用できる。
+
+###If-Modified-Since:リソースの更新日時を条件にする
+クライアントがIf-Modified-Sinceヘッダで時間を指定してリクエストを送り、その時間以降でローカルキャッシュが更新されてなければ304　Not Modifiedをリクエストとして返す。
+
+###If-None-Match:リソースのETagを条件にする
+If-Modified-Sinceヘッダは時間を持たないサーバーやミリ秒
+単位で変更しうるリソースに対しては使えない。If-None-Matchヘッダは、キャッシュしてあるリソースのETagヘッダの値がリクエストで送った値と一致しなければキャッシュを使えるということになる。
+
+###どちらがいいのか
+Last-Modified-Sinceよりも正確な更新の有無がわかるので、できればIf-None-Matchを使う方がよい。
+
+###ETagの計算
+静的ファイルの場合
+Apacheの設定では、inode番号、ファイルサイズ、更新日時から自動で計算してくれるが、inode番号はファイルシステム毎に変わるのでサーバーを分散している場合は変更されてしまう。
+(inode番号とは、UNIX系のファイルシステムで使われているデータ構造)
+
+動的ページの場合
+WebサーバーはETagを自動で計算してはくれないので、HTMLやWebアプリケーションで計算する必要がある。ETagの値の計算はリソース内容のハッシュを計算するのが最も簡単だが、サイズが大きいリソースやデータベースへの複雑なクエリが発生するリソースではリソースのメタデータやリソースの更新カウンターを用意して代用する
+
+##持続的接続
+HTTP1.0以前ではサーバがレスポンスを返すごとにTCPコネクションを返していたが、HTTP1.1ではパイプライン化(クライアントがレスポンスを待たずに同じサーバにリクエストを送信できる)をdefault設定にし、効率的にメッセージを処理できるようになった。
+
+コネクションを切断したいときは、リクエストでConnectionヘッダにcloseという値を設定することで切断できるようになる。
+
+##その他のHTTPヘッダ
+###Content-Disposition:ファイル名を指定する
+サーバーがクライアントに対してリソースのファイル名を提示するために利用するレスポンスヘッダ。
+filenameパラメータでファイル名を指定しているが、ファイル名の文字エンコーディング方式がブラウザによって違うので、ブラウザごとにサーバーの挙動を変更する実装が必要
+
+###Slug:ファイル名のヒントを指定
+クライアントがAtomのエントリをPOSTする際に、新しく生成するリソースのURIのヒントとなる文字列をサーバに提示できる。
+Slugヘッダは簡単に実装できるようになるため非ASCⅡ文字列のエンコーディングとしてUTF-8の%エンコーディングを採用した。
+
+#第10章HTML
+##HTMLとは
+HTML=Hyper Text Markup Languageの略
+Markup Language:タグで文書の構造を表現するコンピュータ言語
+Structured Document:マークアップ言語でマークアップした構造を持った文書。
+
+HTML5はSGML構文とXML構文を用意しているが、XML構文に限定する場合は XHTML5と呼ぶ。
+
+XHTMLのメディアタイプ:XHTML1.1ではtext/htmlを認めていないがブラウザのIEがapplication/xhtmlを正しく扱えないため、User-Agentヘッダを利用してサーバー側側でブラウザを区別し通常のブラウザではapplication/xhtml、IEではtext/htmlを使うように定義している。
+text/htmlはSGMLベースのHTML、application/xhtml+xmlはXMLベースのXHTMLを示す。
+
+##実体参照と文字参照
+「<」などの文字をエスケープするときは以下の表の通り文字参照という機構を用いて表示するが、この表にない文字をエスケープするときはUnicode番号を用いて,&#(Unicode番号)または&#x(Unicode番号の16進数表示)で表す
+![Kobito.DfEyTQ.png](https://qiita-image-store.s3.amazonaws.com/0/99622/46ebd879-9510-18ab-1792-32cd01ac5915.png "Kobito.DfEyTQ.png")
+
+
+##XML宣言
+XML文書ではxmlのバージョンと文字エンコーディング方式を宣言しなくてはならない。
+
+具体例↓
+
+```
+<?xml varsion="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+...
+</html>
+```
+
+##名前空間
+複数のXMLフォーマットを組み合わせるときに名前の衝突を防ぐために名前空間を用いる
+
+###要素の名前空間
+名前空間宣言は`xmlns:接頭辞="名前空間名"`という書式で書く。
+接頭辞には任意の文字列が来るが、書かない場合はデフォルト名前空間に属することを意味する名前空間名にはURIが入るが、このURIは各フォーマットの使用で決められている
+名前空間宣言は名前空間名と接頭辞を結びつける役割を持ち、接頭辞によって名前の衝突を防ぐ。
+具体例↓
+![Kobito.wHO4t4.png](https://qiita-image-store.s3.amazonaws.com/0/99622/2629a065-fecf-61c6-d591-c861011b0539.png "Kobito.wHO4t4.png")
+
+
+```
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:atom="http://www.w3.org/2005/Atom">
+ <head>
+   <link rel="stylesheet" href="base.css"/>
+   <atom:link rel="cnclosure href="attachment.mp3/>
+ </head>
+ .......
+</html>
+```
+
+###属性の名前空間
+名前空間宣言の書式は要素の宣言と同様。で具体例は↓
+
+```
+<entry xmlns="http://www.w3.org/2005/Atom"
+       xmlns:thr="http://http://purl.org/syndication/thread/1.0">
+  <link href="blog.example.jp/entries/1/commentsfeed"
+        thr:count="10">
+</entry>
+```
+
+この例においてhref属性のように接頭辞のつかない属性のことをローカル属性といい、このhref属性は<link>要素に属する
+
+thr:count属性のように接頭辞のついた属性のことをグローバル属性という。グローバル属性は属性を拡張したいときに利用する。この例の場合では、thr:count属性はAtom Threading Extensionsの名前空間に属する。
+
+##HTMLの構成要素
+###ヘッダ
+![Kobito.W3qD73.png](https://qiita-image-store.s3.amazonaws.com/0/99622/b83be4a2-9a86-3e65-9727-b4e82bbf212a.png "Kobito.W3qD73.png")
+
+
+
+###ボディ
+・ブロックレベル要素
+文書の段落や見出しなどある程度大きな塊を示す
+![Kobito.Pd5Om7.png](https://qiita-image-store.s3.amazonaws.com/0/99622/86573666-d278-b6dd-79a3-fe32df19d8d2.png "Kobito.Pd5Om7.png")
+
+
+・インライン要素
+ブロックレベル要素の中にはいる要素で、強調や改行、画像埋め込みなどを表現する
+![Kobito.JhIe3a.png](https://qiita-image-store.s3.amazonaws.com/0/99622/3b296d05-7759-fbf1-5b30-a94c0c5420ae.png "Kobito.JhIe3a.png")
+
+
+###共通の属性
+・id属性
+文書内で一意なID,文書内のある部分をURIで示すときにURIフラグメントで利用したり、CSSでスタイルを指定するときに利用する
+
+・class属性
+その要素が属するクラス。その要素をの意味づけをするメタデータとしての役割を持つ。cssでのスタイル指定やmicroformatsなどでメタデータを表現するときに利用する
+
+CSSでid,classを記した具体例↓
+
+```
+h1#title{
+  font-size:120%
+}
+span.author{
+  color: red
+}
+```
+
+これはid属性の値がtitleの\<h1>要素、class属性の値にauthorを含む\<span>要素
+
+##リンク
+・a要素
+具体例
+
+```
+詳細な情報は<a href="http://gihyo.jp">技術評論社のWebページ</a>を参照してください。
+```
+
+・link要素
+
+```
+<head>
+  <link rel="index" href="http://example.jp/index.html"/>
+  <link rel="prev" href="http://example.jp/1.html>
+  <link rel="next" href="http://example.jp/3.html/>
+</head>
+```
+
+・オブジェクトの読み込み
+
+```html:<img>要素の例
+<img src="http://example.jp/children.jpg" alt="子供達の写真"/>
+```
+
+```html:<object>要素の例
+<object data="http://example.jp/children.mpeg">子供達の動画</object>
+```
+
+・フォームによるGET
+
+```
+<html xmlns="http:www.w3.org/1999/xhtml">
+  <head><title>form test</title></head>
+  <body>
+    <form method="GET" action="http://example.jp/search">
+      <p>キーワード:
+        <input type="text" id="q" name="q" />
+        <input type="submit" id="submit" name="submit" value="検索" /></p>
+    </form>
+  </body>
+</html>
+``` 
+
+このmethodをPOSTにすればPOST送信するフォームになる
+
+##リンク関係
+\<a>要素と\<link>要素はそれぞれrel属性を持てる
+rel属性の値のことをリンク関係といい、リンク元のリソースとリンク先のリソースがどのような関係にあるかを記述する。
+
+・HTML4.x/XHTML1.xのリンク関係
+![Kobito.fXSYLn.png](https://qiita-image-store.s3.amazonaws.com/0/99622/aa45f017-fa92-e810-46f8-807d8b14e294.png "Kobito.fXSYLn.png")
+
+
+#第11章microformats
+##セマンティクスとは
+セマンティクス:意味論
+Webにおける意味論とはHTMLなどで表現したリソースがどのような意味を持つのかをプログラムでも解釈できるようにする。人間が読んで理解するWebページの意味をプログラムから処理できるように形式的に意味を記述するための技術がセマンティックWeb。
+
+##RDF(Resource Description Framework)
+RDFは1990年代後半に登場した仕様だが、以下の3点の短所があった。
+・記述が冗長で複雑になる。
+・統一的な記述がしづらい
+・対象データとは独立したメタデータが必要
+
+##microformats
+以上のRDFの短所を修正したものがmicroformatsである。
+同じ内容を表したものが以下の例である。
+
+```html:RDF
+<rdf:RDF xmlns:rdf="htt@p://www.w3.org/1999/02/-rdf-syntax-ns#">
+  <rdf:Description rdf:about="htt@://example.jp/.html">
+    <cc:licence xmlns:cc="http://web.resource.org/cc/"
+      rdf:resource="http://creativecommons.org/licenses/by-sa/3.0"/>
+  </rdf:Description>
+</rdf:RDF>
+```
+
+```microformats
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+  <p>このWebページの権利は<a rel="licence"
+    href="http://creativecommons.org/license/by-sa/3.0/"
+      >Creative Commons by-sa 3.0</a>に従います。</p>
+  </body>
+</html>
+```
+
+これはrel-licenseと呼ばれるmicroformatを利用している。これは、\<a>要素のrel属性がlicence,href属性が`http://creativecommons.org/licenses/by-sa/3.0/`という値を持っていて、これがCreative Commonsのby-saを意味すると定義している。
+
+このようにmicroformatsはHTML文書そのものにメタデータを埋め込み、「より簡単に、もっと気軽にWebページのセマンティクスを記述できるようにしよう」とする仕様。
+
+##標準化が完了したmicroformatsの一覧
+![Kobito.S0rWq1.png](https://qiita-image-store.s3.amazonaws.com/0/99622/2f1da24c-87e8-d125-6ec1-d9f71b25f7bc.png "Kobito.S0rWq1.png")
+
+
+##標準化途中のmicroformatsの一覧
+![Kobito.Oqj63N.png](https://qiita-image-store.s3.amazonaws.com/0/99622/4e380b33-2702-ae9f-7baa-a7f4b101ca05.png "Kobito.Oqj63N.png")
+
+
+##elemental microformats
+rel-licenseのように、リンク関係(\<a>要素や<link>要素のrel属性)を使ってメタデータを表現するフォーマット
+以下に例をあげる
+
+###rel-license:ライセンス情報
+\<a>タグの要素に`rel="license"`を加えるとhref以下のリンクが参照元のページのライセンス情報であるという意味を示す。
+
+###rel-nofollow:スパムリンク防止
+\<a>タグの要素に`rel="nofollw"`を加えると検索エンジンがリンクをランキング重み付けに利用しなくなる。
+
+##compound microformats
+後述するhCalenderのように、主にclass属性を使って階層構造のあるメタデータを表現するフォーマット
+
+###hCalender:イベント情報
+カレンダー、イベント情報を記述するためのmicroformats.
+具体例↓
+
+```
+<ul class="vevent">
+	<li class="summary">
+		<a class="url" href="http://gihyo.jp/..."></a>
+	</li>
+	<li>日時:2014年4月8日
+		<abbr class="dtstart" title="2010-04-08T19:00:00+09:00">19:00</abbr>
+		<abbr class="dtend" title="2010-04-08T21:00:00+09:00">21:00</abbr>
+	</li>
+	<li>
+       <span class="location">ジュンク堂書店池袋本店4階カフェ</span>にて
+	</li>
+</ul>
+```
+
+class="vevent"の役割
+
+```
+<ul class="vevent">
+	<!-- <ul>要素全体で1つのイベント情報を表す -->
+</ul>
+```
+
+class=locationの役割
+
+```
+<span class="location">
+  <!--イベントの開催場所を表現している-->
+</span>
+```
+
+class="summary"、class="url"の役割
+
+```
+<li class="summary">
+  <!--イベントの概要を表現-->
+  <a class="url href=ここにイベントのURL"></a>
+</li>
+```
+
+class="dtstart,class="dtend"の役割
+
+```
+<abbr class="dtstart title="ISO8601形式の日時文字列">イベント開始時刻</abbr>
+<abbr class="dtend title="ISO8601形式の日時文字列">イベント終了時刻</abbr>
+```
+
+###hAtom:更新情報
+以下の表に書いてあるクラスを指定することでAtomが持つメタデータをHTMLに埋め込むことができる。
+![Kobito.exAO0W.png](https://qiita-image-store.s3.amazonaws.com/0/99622/a257e837-b5f9-b494-71cc-09b3f13787e8.png "Kobito.exAO0W.png")
+
+
+##microformatsとRDFa
+###RDFa(RDF-in-attribute)
+microformatsではclass値やrel値でメタデータを指定するが、名前の衝突問題が起きると誤判定などの問題が起きる。XMLの名前空間をデフォルト空間と別に作ることで解決したのがRDFa。
+
+しかし、RDFaには記述が複雑になるという問題と、名前空間を前提としているためXHTMLでしか記述できないという問題がある。
+
+###RDFaを使ったアプリケーション
+LDRize,AutoPagerizeはhAtomやxFolkというmicroformatsが提供するメタデータを利用している。Greasemonkeyのユーザースクリプトという「プログラム」がHTML文書を解釈し、ページ送りを画面遷移なしに実現する。
+
+LDRize:webページをlivedoor Readerのような操作性で閲覧できるFirefox/Greasemonkeyのユーザースクリプト。
+AutoPagerize:検索結果ページやニュース記事など複数に分割されているWebページにおいて現在のページの下に自動で次のページを継ぎ足す。
+
+###リソースの表現としてのmiroformats
+WebAPIでは、プログラム用にXML,JSONなどのデータ構造が記述できるフォーマットを使用することが一般的だが、以下の弱点がある。
+・WebサービスとWebAPIで提供する機能が異なりがち
+・開発規模の拡大によりメンテナンス性の低下
+・WebAPIに必要な技術の習得コスト
+
+microformatsは以上の弱点を補うといえる。
+
+#Atom
+##Atomとは
+Atom Syndication Formatは、RFC4287で規定されたXMLフォーマットでWeb APIとして利用出来る。
+
+##Atomのリソースモデル
+メンバリソース
+シート17
+
+###メディアタイプ
+Atomのメディアタイプは「application/atom+xml」なのでエントリやフィードを明示するときはtypeパラメータで指定する
+
+```atom:typeパラメータなし
+Content-Type:application/atom+xml
+```
+
+```atom:エントリ
+Content-Type:application/atom+xml; type=entry
+```
+
+```atom:フィード
+Content-Type:application/atom+xml; type=entry
+```
+
+```typeパラメータとcharsetパラメータを指定
+Content-Type:application/atom+xml; type=entry; charset=utf-8
+```
+
+###名前空間
+Atomが定義している要素はAtomの名前空間`http://www.w3.org/2005/Atom`に属する。
+
+##エントリ:Atomの最小単位
+エントリのルート要素は<entry>要素で、この中にエントリのメタデータと内容がフラットに並ぶ
+
+###メタデータ
+・ID
+<id>要素の内容は、エントリを一意に示すURI形式のID。httpスキームのURIも利用できるがAtomではtagスキーム(RFC4151)のURIがよく用いられている
+
+tagスキームは以下の構造をもつ。
+
+```
+tag:{DNS名またはメールアドレス},{日付},{任意の文字列}
+```
+
+DNS名とは自分が権利を持つドメインのホスト名
+メールアドレス:自分が保持している任意のメールアドレス
+日付以降は任意の文字列を加えることができる。
+
+・タイトルと概要
+エントリにはそのエントリの題名を表現する<title>要素とエントリの概要を示す<summary>要素がある。
+
+```
+<entry xmlns="http://www.we3.org/2005/Atom">
+	<title>Atomについて</title>
+	<summary type="xhtml">
+		<div xmlns="http://www.w3.org/1999/html">
+			<p>このエントリでは<a href="http://ja.wikipedia.org/wiki/Atom/wikipedia">Atom</a>について解説します。</p>
+		</div>
+	</summary>
+
+....
+</entry>
+```
+
+<title>要素と<summary>要素は、後述する<content>要素と同じくtype属性として「text」「html」「xhtml」という値を持ちこれらの値によって変化する
+
+・著者と貢献者
+エントリには著者を示す<author>要素と貢献者を示す<contributor>要素がある。
+<author>要素と<contributor>要素は以下の3つの要素を持つ
+・<name>:自然言語で記述した名前。必須。
+・<uri>:人に関連付けられたURI。任意。
+・<email>人のメールアドレス。任意。
+
+```
+<author>
+	<name>山本陽平</name>
+	<uri>http://yohei-y.blogspot.com</uri>
+	<email>yohei@gmail.com</email>
+</author>
+<contributor>
+	<name>稲尾尚徳</name>
+</contributor>
+```
+
+・公開日時と更新日時
+エントリには更新日時を示す<updated>要素とエントリの公開日時を示す<published>要素がある。ともにRFC3339で規定された日時フォーマットである。
+
+RFC3339:ISO8601をインターネットプロトコルでどのように扱うかを規定したRFC。
+
+・カテゴリ
+カテゴリ:ソーシャルブックマークでいうところのタグ。
+<category>要素には以下の属性を付けることで意味を持たせることができる。
+・term属性:エントリのタグを意味付けする
+・label:アプリケーションが表示するためのラベル
+・scheme属性:そのタグを識別するためのURI
+
+・リンク
+Atomではリンクを<link>要素で示す。href属性のみが必須。
+rel属性はリンク関係を表現し、その意味は下の図の通り。
+type属性はリンク先のリソースのメディアタイプを指定する。
+length属性はリンク先リソースのサイズをバイトで指定する。
+title属性はリンク先の自然言語での説明が入る。
+シート18
+
+###エントリの内容
+Atomではエントリの内容に多彩なフォーマットを含まれる。
+####組み込みで定義されているフォーマット
+<entry>要素は<content>要素を子要素にtype属性としてプレーンテキスト(text)、エスケープ済みHTML(html)、 XHTML(xhtml)を入れることができる。以下説明するようにこの3つ以外のメディアタイプも指定できる。
+
+####xml
+メディアタイプがapplication/xml,text/xml,またはサブタイプが「+xml」で終わる場合<content>要素は直接そのxml要素を含むことができる。
+以下のように書くことでSVG文書を<content>要素を直接XML要素に含むことができる。
+SVG(ベクタ画像をXMLで表現するフォーマット)
+
+
+```
+<entry xmlns="http://www.we3.org/2005/Atom">
+
+	<content type="iamge/svg+xml">
+		<svg xmlns="http://www.w3.org.2000/svg"
+			 xml:space="preserve" width="5.5in" height=".5in">
+			<text style="fill:red"; y="15">This is SVG.</text>
+		</svg>
+	</content>
+</entry>
+```
+
+####テキストの内容
+エントリリソースはxml以外のテキストも持てる。メディアタイプがtextであれば直接<content>要素に入れることができる。
+
+####テキスト以外の内容
+Base64でエンコードすることで一般的なwebサービスはテキスト以外の画像などのバイナリデータを扱うことができる。しかし、大きなファイルはxml文書が巨大化するため、巨大な画像や音声・映像を<content>要素に入れる時はsrc属性にバイナリデータのURI,type属性にメディアタイプを入れることで外部リソースを参照させ処理する。
+
+メディアリンクエントリ:src属性で外部リソースを参照しているエントリリソース
+メディアリソース:メディアリンクエントリが参照している画像リソース
+
+##フィード:エントリの集合
+フィード:メンバリソースを複数持つコレクションリソースの表現
+###エントリと共通のメタデータ
+<feed>要素はエントリと同じメタデータを持つことができ、必須項目もエントリと一緒で<id>、<title>,<author>,<updated>
+
+###フィード独自のメタデータ
+####サブタイトル
+<subtitle>要素にはタイトルで説明できない説明を記述する。
+<title>,<summary>,<content>要素と同様にtype属性で「text」,「html」,「xhtml」という値を持ち、これらの値で内容が変化する
+
+####生成プログラム
+<generator>要素はフィードを生成したプログラムの情報を表現する
+uri属性:そのプログラムに関連のあるURIを指定する
+version属性:プログラムのバージョンを指定する
+<generator>要素の内容はプログラムの名称
+
+####アイコン
+<icon>要素にはfaviconを指定する。要素の内容はfaviconのURIとなる。
+
+####ロゴ
+<logo>要素にはフィードを象徴する画像を指定する。<icon>要素と同様に内容には画像のURIを指定する
+
+##Atomの拡張
+
+```
+<feed xmlns="http://www.w3.org/2005/Atom"
+	  xmlns:os = "http://a9.com/-/spec/openresearch/1.1/">
+	<title>「REST」の検索結果</title>
+	<id>http://example.jp/search?q=REST</id>
+    <author><name>Example Co., Ltd.</name></author>
+    <os:totalResults>3392</os:totalResutls>
+    <os:startIndex>21</os:startIndex>
+    <os:itemsPerPage>10</os:itemsPerPage>
+    <entry>
+    	<title>「REST」の検索結果</title>
+    	<id>http://yohei-y.blogspot.com/2005/04/rest_23.html</id>
+    	<link href="http://yohei-y.blogspot.com/2005/04/rest_23.html"/>
+    </entry>
+
+</feed>
+```
+
+\<os:~>という3つの拡張要素はすべてOpenSearchの名前空間に属しており、OpenSearchは検索結果の標準フォーマットとしてAtomとは全く別に標準化されている。Atomの名前空間以外の拡張要素は「外部マークアップ」(Foreifgn Markup)と呼ぶ。
+
+上の例に置いては、OpenSearchに対応したプログラムから見ると
+\<os:totalResults>:検索結果総数
+\<os:startIndex>:検索結果総数
+\<os:itemsPerPage>:このフィードのページ番号と出現する検索結果数
+を表現する
+OpenSearchを実装していないプログラムから見るとこのXMLを通常のAtomフィールドとしてみる。Atomフォーマットの仕様で知らない要素・属性は無視するとなっているから。Atomフィードとエントリは両方とも子要素として任意の個数の外部マークアップが出現できるように設計されており、複数の外部マークアップを組み合わせて利用できる。
+
+###Atom Threading Extensions:スレッドを表現する
+ブログのように投稿者が1人であるようなコンテンツであればAtomで表現することができるが、掲示板のように投稿者が複数おりある人が投稿したコンテンツに対して他の人が返信するといったスレッド機能を表現するためにはAtom Threading Extensionsというフォーマットが必要になる。
+
+####名前空間
+Atom Threading Extensionsの名前空間は`http://purl.org/syndication/thread/1.0`
+
+####\<thr:in-reply-to>要素
+返答する側で仕様し、エントリ同士の返答において返答したエントリと返答元のエントリの関係を示すのが\<thr:in-reply-to>要素
+\<thr:in-reply-to>要素は以下の4つの属性を持つ。
+・ref属性:\<thr:in-reply-to>要素があるエントリが参照しているエントリ(親エントリ)のID。必須。
+・href属性:このエントリの表現を取得するためのUIR。任意。
+・type属性:href属性で参照するリソースのメディアタイプ。任意。
+・source属性:ref属性で参照するエントリを含むフィードのURI。任意。
+\<thr:in-reply-to>要素は1つのエントリに複数出現でき、1つのエントリが複数のエントリに対する返答となる。
+
+####repliesリンク関係とthr:count属性/thr:updated属性
+replies関係:返答される側、親エントリの側から子エントリを参照するときに使う
+以下の5つの属性を持つ
+・rel属性:repliesという値。必須。
+・href属性:このエントリへの返答があるリソースへのURI。必須
+・type属性:hrefで参照するリソースのメディアタイプ。省略時のデフォルトはapplication/atom+xml。任意。
+・thr:count属性:hrefで参照するリソースの返答総数(正の整数)。RFC4685が定義するグローバル属性。任意。
+・thr:updated属性:このエントリへの返答が最後に更新された時刻。RFC4685が定義するグローバル属性。任意。
+
+####\<thr:total>属性
+\<thr:total>要素はこのエントリへの返答総数が入る。
+thr:count属性が参照先のリソースに入っている返答の数を表現するが、\<thr:total>属性はこのエントリへの返答総数を表現する。
+
 ###Atom License Extension:ライセンス情報を表現する
 フィードやエントリのライセンス情報を表現するためのフォーマット
 \<link>要素はrel属性の値をlicenseとすることでこのエントリのライセンスがCreative Commonsのby-ncであることを示している。これはmicroformatsのrel-licenseと同じ構造をもつ。
@@ -37,7 +948,15 @@ Feed Paging and Archivingではフィードを以下の3つに分類している
 
 ####ページ化フィード
 膨大な件数をエントリを含むフィードを、幾つかのページに分割するのがページ化フィード。以下の表が複数ページのページ間の関係を示すリンク関係を表現する。
-シート19
+
+| リンク関係 |          意味          |
+| ---------- | ---------------------- |
+| first      | 最初のページへのリンク |
+| last       | 最後のページへのリンク |
+| previous   | 前のページへのリンク   |
+| next       | 次のページへのリンク   |
+| current    | 現在のページへのリンク |
+
 
 ####アーカイブ済みフィード
 ページ化フィードに比べると以下の特徴をもつ
@@ -47,7 +966,12 @@ Feed Paging and Archivingではフィードを以下の3つに分類している
 トップページはページ化フィード、過去のエントリである、月別のアーカイブをフィードで表現するための仕様がアーカイブ済みフィード。
 
 アーカイブ済みフィードにおけるアーカイブ間の関係を示すリンク関係が下の表の通り
-シート20
+
+|  リンク関係  |                                意味                                |
+| ------------ | ------------------------------------------------------------------ |
+| prev-archive | 前のアーカイブであるフィードへのリンク                             |
+| next-archive | 次のアーカイブであるフィードへのリンク                             |
+| current      | (ブログのトップページに体操するような)<br>最新のフィードへのリンク |
 
 ###OpenSearch:検索結果を表現する
 OpenSearchは大きく分けると以下の4つのパートに分かれる
@@ -70,6 +994,33 @@ OpenSearch1.1の名前空間は`http://a9.com/-/spec/opensearch/1.1/`
 1フィードに入る最大の検索結果エントリ数を示す。
 
 ####\<os:Query>要素
+検索クエリを示す。「rest xml」で検索した時の結果は下の例の通り
+
+`<os:Query role="request" searchTerms="rest xml"/>`
+
+role属性は\<os:Query>要素で表現する検索クエリの役割を示す。Response Elementで用いる場合は常にrequestになり、検索リクエストで使われたクエリを意味する
+
+####リンク関係
+OpenSearchではFeed Paging and Archivingと同じリンク関係を使用することができる。
+
+##第13章Atom Publishing School
+###Atom Publishing Protocol
+AtomとAtomPubは以下に示すような関係を持つ
+・Atom:データフォーマットの規定(フィード、エントリ)
+・AtomPub:Atomを利用したリソース編集プロトコルの規定
+すなわち、AtomPubはAtomが規定したフィードやエントリで表現するリソースの編集、CRUD操作を実現するためのプロトコル
+
+MetaWeblogAPIやbloggerAPIのようにXML-RPCベースのブログ編集用プロトコルは存在したが、国際化、拡張性、RPCベースのAPIなどの課題をAtomPubは解決することができる。
+
+RESTは分散ネットワークシステムのアーキテクチャであるため、実際のリソース設計やリンク機構の提供はシステム設計者に委ねられている。これは、設計者の自由度が確保されているという利点があるが、RESTを理解していないとうまく設計できないという欠点を持つ。
+RESTスタイルの基づいて作られてたプロトコル仕様であるAtomPubは基本的なリソースモデルとリンク機構を提供してくれるので独自に作り上げる部分を少なくすることが可能となる。
+
+###Atomのリソースモデル
+AtomPubではコレクションのメタデータを表現するサービス文書(Servise Document)とエントリのカテゴリを指定できる値を列挙するカテゴリ文書(Category Document)を追加している。
+
+###
+
+
 
 
 
