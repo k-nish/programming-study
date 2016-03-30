@@ -1,0 +1,58 @@
+##参考URL
+[http://octave.futene.net/matrixa.html](http://octave.futene.net/matrixa.html)</br>
+[http://octave.dogrow.net/?p=37](http://octave.dogrow.net/?p=37)</br>
+[http://www.mk.ecei.tohoku.ac.jp/dsptext/octave/function.html](http://www.mk.ecei.tohoku.ac.jp/dsptext/octave/function.html)<br>
+[http://octave.futene.net/file.html](http://octave.futene.net/file.html)</br>
+[https://www.gnu.org/software/octave/doc/interpreter/Utility-Functions.html](https://www.gnu.org/software/octave/doc/interpreter/Utility-Functions.html)</br>
+[http://www.obihiro.ac.jp/~suzukim/masuda/octave/html/octave_91.html](http://www.obihiro.ac.jp/~suzukim/masuda/octave/html/octave_91.html)</br>
+
+###n行n列の単位行列
+eye(n)
+
+###size(A)
+→行列Aのサイズを返す
+
+###length(A)
+→Aの中でもっとも大きい次元の値を返す
+
+###行列Aの転置行列
+A.'
+
+###行列Aの共役転置行列
+A'
+
+###sum(f)
+横行列に対して要素和を取る
+一般の行列に対しては各行の和を取り、縦行列にする
+
+###numel(A)
+行列Aの全要素数を返す
+
+###linspace(base,limit,n)
+baseとlimitの間を，等間隔でn個に区切った要素をもつ 行ベクトルを返す。要素数nは，1より大きくなければならない。 baseとlimitは，その範囲に常に含まれる。もしbaseが limitよりも大きければ，その要素は降順に格納される。もし点の数が 指定されなければ，100という値を使用する。
+
+linspace関数は，常に行ベクトル(要素を横に並べたもの)を返す。
+
+###repmat()
+ex.
+
+```octave:repmat.m
+octave>a=[1 2 3;4 5 6;7 8 9];c=repmat(a,[2 3])
+c =
+
+   1   2   3   1   2   3   1   2   3
+   4   5   6   4   5   6   4   5   6
+   7   8   9   7   8   9   7   8   9
+   1   2   3   1   2   3   1   2   3
+   4   5   6   4   5   6   4   5   6
+   7   8   9   7   8   9   7   8   9
+```
+
+###3つの行列の全要素をすべてひとつの行列にまとめる
+thetaVec = [Theta1(:); Theta2(:); Theta3(:)];
+DVec = [D1(:); D2(:); D3(:)];
+
+###ひとつの列ベクトルから行列を取り出す
+Theta1 = reshape(thetaVec(1:110),10,11);
+Theta2 = reshape(thetaVec(111:220),10,11);
+Theta3 = reshape(thetaVec(221:231),1,11);
