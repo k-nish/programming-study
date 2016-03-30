@@ -49,10 +49,19 @@ c =
 ```
 
 ###3つの行列の全要素をすべてひとつの行列にまとめる
+
+```
 thetaVec = [Theta1(:); Theta2(:); Theta3(:)];
 DVec = [D1(:); D2(:); D3(:)];
+```
 
 ###ひとつの列ベクトルから行列を取り出す
+
+```
 Theta1 = reshape(thetaVec(1:110),10,11);
 Theta2 = reshape(thetaVec(111:220),10,11);
 Theta3 = reshape(thetaVec(221:231),1,11);
+```
+
+###行列の最初にバイアス項を追加する
+`Aincludebias = A(:, 2:end);`
